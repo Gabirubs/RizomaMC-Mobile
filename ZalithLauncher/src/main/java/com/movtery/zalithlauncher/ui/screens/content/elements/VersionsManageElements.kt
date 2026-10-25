@@ -1,6 +1,6 @@
 /*
  * Zalith Launcher 2
- * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ * Copyright (C) 2025-2026 MovTery <movtery228@qq.com> and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1053,7 +1053,6 @@ private fun getLoaderIconRes(
         ModLoader.NEOFORGE -> R.drawable.img_loader_neoforge
         ModLoader.OPTIFINE -> R.drawable.img_loader_optifine
         ModLoader.LITE_LOADER -> R.drawable.img_chicken_old
-        ModLoader.CLEANROOM -> R.drawable.img_loader_cleanroom
         else -> defaultIcon
     }
 }

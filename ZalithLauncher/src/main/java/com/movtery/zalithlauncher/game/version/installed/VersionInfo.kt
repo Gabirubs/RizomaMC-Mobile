@@ -1,6 +1,6 @@
 /*
  * Zalith Launcher 2
- * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ * Copyright (C) 2025-2026 MovTery <movtery228@qq.com> and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -71,7 +71,7 @@ class VersionInfo(
          * 主加载器的判定优先级
          */
         val PRIMARY_PRIORITY = listOf(
-            ModLoader.FORGE, ModLoader.NEOFORGE, ModLoader.CLEANROOM,
+            ModLoader.FORGE, ModLoader.NEOFORGE,
             ModLoader.FABRIC, ModLoader.QUILT, ModLoader.LEGACY_FABRIC, ModLoader.BABRIC,
             ModLoader.OPTIFINE, ModLoader.LITE_LOADER
         )
@@ -99,7 +99,6 @@ class VersionInfo(
 
                 ModLoader.QUILT -> "INST_QUILT"
                 ModLoader.LITE_LOADER -> "INST_LITELOADER"
-                ModLoader.CLEANROOM -> "INST_CLEANROOM"
                 else -> null
             }
         }

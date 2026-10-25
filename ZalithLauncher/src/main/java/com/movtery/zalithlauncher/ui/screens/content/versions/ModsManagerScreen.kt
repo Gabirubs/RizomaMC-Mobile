@@ -1,6 +1,6 @@
 /*
  * Zalith Launcher 2
- * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ * Copyright (C) 2025-2026 MovTery <movtery228@qq.com> and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -170,6 +170,7 @@ import kotlinx.coroutines.withContext
 import org.apache.commons.io.FileUtils
 import java.io.File
 import java.util.LinkedList
+import java.util.Locale
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 import kotlin.time.Duration.Companion.milliseconds
@@ -319,19 +320,19 @@ private class ModsManageViewModel(
         filteredMods = allMods
             .takeIf { it.isNotEmpty() }
             ?.filterMods(nameFilter, stateFilter, context)
-            ?.sortedWith { o1, o2 ->
-                val file1 = o1.localMod.file
-                val file2 = o2.localMod.file
-                val value = when (sortByEnum) {
-                    SortByEnum.FileName -> file1.name.compareTo(file2.name)
-                    SortByEnum.FileModifiedTime -> file2.lastModified().compareTo(file1.lastModified())
-                    else -> error("This sorting method is not supported: $sortByEnum")
+            ?.let { mods ->
+                //排序前先快照排序键，排序过程中键值不再变化，保证比较结果前后一致
+                val entries = mods.map { mod ->
+                    val file = mod.localMod.file
+                    mod to ModsSortKey(
+                        name = file.name,
+                        lowercaseName = file.name.lowercase(Locale.ROOT),
+                        lastModified = file.lastModified()
+                    )
                 }
-                if (isAscending) {
-                    value
-                } else {
-                    -value
-                }
+                entries
+                    .sortedWith(compareBy(modsComparator(sortByEnum, isAscending)) { it.second })
+                    .map { (mod, _) -> mod }
             }
     }
 
@@ -429,6 +430,28 @@ private class ModsManageViewModel(
     override fun onCleared() {
         viewModelScope.cancel()
     }
+}
+
+/** 模组列表的排序键，排序前一次性读取，保证排序过程中的比较结果稳定 */
+private data class ModsSortKey(
+    /** 原始文件名，用于细分大小写不同的同名文件 */
+    val name: String,
+    /** 转为小写后的文件名，用于忽略大小写的主排序 */
+    val lowercaseName: String,
+    val lastModified: Long
+)
+
+/**
+ * 构建模组列表的比较器：文件名忽略大小写排序；修改时间在升序时最新优先，保持原有展示行为
+ */
+private fun modsComparator(sortByEnum: SortByEnum, isAscending: Boolean): Comparator<ModsSortKey> {
+    val comparator: Comparator<ModsSortKey> = when (sortByEnum) {
+        SortByEnum.FileName -> compareBy({ it.lowercaseName }, { it.name })
+        SortByEnum.FileModifiedTime -> compareByDescending { it.lastModified }
+        else -> error("This sorting method is not supported: $sortByEnum")
+    }
+    //通过 reversed() 翻转顺序，而非对比较结果取反（取反无法翻转 Int.MIN_VALUE 的符号）
+    return if (isAscending) comparator else comparator.reversed()
 }
 
 

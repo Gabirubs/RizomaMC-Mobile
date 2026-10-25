@@ -1,6 +1,6 @@
 /*
  * Zalith Launcher 2
- * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ * Copyright (C) 2025-2026 MovTery <movtery228@qq.com> and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -62,6 +62,7 @@ import com.movtery.zalithlauncher.setting.enums.FpsDisplayMode
 import com.movtery.zalithlauncher.setting.enums.GamepadInputMode
 import com.movtery.zalithlauncher.setting.enums.GestureActionType
 import com.movtery.zalithlauncher.setting.enums.MouseControlMode
+import com.movtery.zalithlauncher.setting.enums.MouseTouchBlockMode
 import com.movtery.zalithlauncher.setting.enums.ResolutionRule
 import com.movtery.zalithlauncher.setting.unit.floatRange
 import com.movtery.zalithlauncher.ui.AndroidStringText
@@ -644,6 +645,19 @@ private fun ControlMouse(
                 items = MouseControlMode.entries,
                 currentItem = AllSettings.mouseControlMode.state,
                 onItemChange = { AllSettings.mouseControlMode.save(it) },
+                getItemText = { stringResource(it.nameRes) },
+                color = color,
+                contentColor = contentColor,
+            )
+        }
+        //阻止触摸虚拟鼠标输入
+        item {
+            MenuListLayout(
+                modifier = Modifier.fillMaxWidth(),
+                title = stringResource(R.string.settings_control_mouse_block_touch_title),
+                items = MouseTouchBlockMode.entries,
+                currentItem = AllSettings.mouseTouchBlockMode.state,
+                onItemChange = { AllSettings.mouseTouchBlockMode.save(it) },
                 getItemText = { stringResource(it.nameRes) },
                 color = color,
                 contentColor = contentColor,

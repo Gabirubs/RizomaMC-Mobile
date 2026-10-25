@@ -1,6 +1,6 @@
 /*
  * Zalith Launcher 2
- * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ * Copyright (C) 2025-2026 MovTery <movtery228@qq.com> and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -76,7 +76,6 @@ import com.movtery.zalithlauncher.filemanager.logic.editor.isKnownTextFile
 import com.movtery.zalithlauncher.filemanager.logic.entry.FmEntry
 import com.movtery.zalithlauncher.filemanager.logic.ops.ConflictResolution
 import com.movtery.zalithlauncher.filemanager.os.FmLog
-import com.movtery.zalithlauncher.filemanager.ui.components.FmAlertDialog
 import com.movtery.zalithlauncher.filemanager.ui.components.FmAppBar
 import com.movtery.zalithlauncher.filemanager.ui.components.FmBottomBar
 import com.movtery.zalithlauncher.filemanager.ui.components.FmCardPosition
@@ -105,6 +104,7 @@ import com.movtery.zalithlauncher.filemanager.viewmodel.FileManagerUiState
 import com.movtery.zalithlauncher.filemanager.viewmodel.FileManagerViewModel
 import com.movtery.zalithlauncher.filemanager.viewmodel.SearchUiState
 import com.movtery.zalithlauncher.filemanager.viewmodel.applyVisibility
+import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.utils.file.formatFileSize
 import com.movtery.zalithlauncher.utils.formatDate
 import kotlinx.coroutines.delay
@@ -171,6 +171,7 @@ fun FmMainPage(
                 onRefresh = { vm.refresh() },
                 onImportFile = { vm.showImportFilesDialog() },
                 onImportDir = { vm.showImportDirDialog() },
+                onBrowseExternal = { vm.browseInExternalManager() },
                 onSearch = { vm.showSearchDialog() },
                 searchEnabled = !searchUi.running,
                 onSortChange = { vm.setSortConfig(it) },
@@ -765,13 +766,13 @@ private fun FmMainDialogs(
             }
         )
 
-        FmOperation.RangeSelectHelp -> FmAlertDialog(
+        FmOperation.RangeSelectHelp -> SimpleAlertDialog(
             title = stringResource(R.string.fm_range_select_help),
             text = stringResource(R.string.fm_range_select_help_text),
             onDismiss = { updateOperation(FmOperation.None) }
         )
 
-        is FmOperation.EditConfirm -> FmAlertDialog(
+        is FmOperation.EditConfirm -> SimpleAlertDialog(
             title = stringResource(R.string.fm_edit_unknown_title),
             text = stringResource(R.string.fm_edit_unknown_message),
             onConfirm = {

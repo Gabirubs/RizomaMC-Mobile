@@ -1011,6 +1011,7 @@
     <string name="about_sponsor">Apoio de patrocínio</string>
     <string name="about_acknowledgements_title">Agradecimentos</string>
     <string name="about_acknowledgements_pojav_text">%s usa o backend de inicialização do PojavLauncher</string>
+    <string name="about_acknowledgements_modrinth_text">%s porta as predefinições de animação do modelo de jogador do Modrinth</string>
     <string name="about_acknowledgements_pcl_text">%s referencia partes da implementação do PCL2</string>
     <string name="about_acknowledgements_fcl_text">%s incorpora código do FCL e faz referência a partes de sua implementação</string>
     <string name="about_acknowledgements_hmcl_text">%s incorpora código do HMCL e faz referência a partes de sua implementação</string>
@@ -1045,8 +1046,6 @@
     <string name="versions_export_type_mcbbs_summary">Pode ser importado por %s, HMCL e outros launchers</string>
     <string name="versions_export_type_modrinth">Modpack Modrinth</string>
     <string name="versions_export_type_summary_common">Pode ser importado por launchers comuns de terceiros</string>
-    <string name="versions_export_type_multimc">Modpack MultiMC</string>
-    <string name="versions_export_type_multimc_summary">Pode ser importado por %s, MultiMC e outros launchers</string>
     <string name="versions_export_alias_options">Configurações do Jogo</string>
     <string name="versions_export_alias_resource_packs">Pasta de Resource Packs</string>
     <string name="versions_export_alias_mods">Pasta de Mods</string>
@@ -1065,7 +1064,6 @@
     <string name="versions_export_pack_java_args">Argumentos da Máquina Virtual Java</string>
     <string name="versions_export_pack_website">Site do Modpack</string>
     <string name="versions_export_pack_min_memory">Quantidade de RAM mínima para rodar o Modpack:</string>
-    <string name="versions_export_pack_max_memory">Quantidade de RAM recomendada para obter a melhor experiência com o Modpack:</string>
     <string name="versions_export_pack_pack_remote">Baixar recursos principais do %s</string>
     <string name="versions_export_pack_also_pack_curseforge">Incluir recursos remotos do CurseForge no pacote</string>
     <string name="versions_export_pack_select_files">Selecionar Arquivos</string>
@@ -1133,8 +1131,6 @@
     <string name="settings_game_graphics_api_title">APIs Gráficas:</string>
     <string name="settings_game_graphics_api_summary">Defina a API gráfica usada pelo Minecraft 26.2+</string>
     <string name="settings_game_graphics_api_default">Siga as configurações do jogo</string>
-    <string name="settings_renderer_surface_title">Usar renderização SurfaceView</string>
-    <string name="settings_renderer_surface_summary">Renderiza usando uma camada separada fora da interface do usuário</string>
     <string name="plugin_download_title">Baixar Plugin</string>
     <string name="plugin_download_summary">Baixe o plugin e instale-o como um aplicativo. Basta reabrir o launcher e ele será carregado automaticamente!</string>
     <string name="settings_game_graphics_api_default_opengl">Definido para OpenGL apenas na primeira inicialização</string>
@@ -1210,7 +1206,7 @@
     <string name="control_editor_edit_joystick_style_list_empty">Não há estilos de joystick no layout de controle atual</string>
     <string name="control_editor_edit_joystick_style_list_name">Nome do estilo do joystick</string>
     <string name="control_editor_edit_joystick_style_list_delete">Tem certeza de que deseja excluir o estilo de joystick mano? %s</string>
-    <string name="duration_format">%s Dias ou %s Horas ou %s Minutos</string>
+    <string name="duration_format">%s Dias e %s Horas e %s Minutos</string>
     <string name="saves_manage_playtime">Tempo jogado: %s</string>
     <string name="fm_initializing">Inicializando…</string>
     <string name="fm_init_failed">Falha na inicialização: %s</string>
@@ -1233,6 +1229,7 @@
     <string name="fm_import_file">Importar Arquivo</string>
     <string name="fm_import_dir">Importar Diretório</string>
     <string name="fm_import_empty">Nada para importar</string>
+    <string name="fm_browse_external">Navegar em Outros Gerenciadores</string>
     <string name="fm_sort_name">Nome</string>
     <string name="fm_sort_size">Tamanho</string>
     <string name="fm_sort_modified">Modificado</string>
@@ -1415,6 +1412,25 @@
     <string name="guide_editor_add_widgets_text">Depois de selecionar uma camada de controle, você pode adicionar a ela qualquer tipo de controle</string>
     <string name="guide_editor_styles_title">Quer mudar a aparência dos seus controles?</string>
     <string name="guide_editor_styles_text">Você pode criar aparências para seus controles para reutilizá-los e alternar entre eles rapidamente</string>
+    <!--  样式收藏柜  -->
+    <string name="control_editor_style_cabinet">Coleção de estilos</string>
+    <string name="control_editor_style_cabinet_empty">A coleção de estilos está vazia. Você pode adicionar estilos pela lista de aparências de controle ou pela lista de estilos do joystick.</string>
+    <string name="control_editor_style_cabinet_favorite">Adicionar à coleção de estilos</string>
+    <string name="control_editor_style_cabinet_favorited">Estilo adicionado à coleção</string>
+    <string name="control_editor_style_cabinet_add_to_layout">Adicionar ao layout de controle atual</string>
+    <string name="control_editor_style_cabinet_added_to_layout">Adicionado ao layout de controle atual</string>
+    <string name="control_editor_style_cabinet_add_conflict_title">O estilo já existe</string>
+    <string name="control_editor_style_cabinet_add_conflict_message">Já existe um estilo com o mesmo ID no layout de controle atual.</string>
+    <string name="control_editor_style_cabinet_add_conflict_independent">Adicionar como cópia</string>
+    <string name="control_editor_style_cabinet_conflict_title">O estilo já está na coleção</string>
+    <string name="control_editor_style_cabinet_conflict_message">Já existe um estilo com o mesmo ID na coleção de estilos</string>
+    <string name="control_editor_style_cabinet_conflict_overwrite">Sobrescrever existente</string>
+    <string name="control_editor_style_cabinet_conflict_independent">Salvar como cópia separada</string>
+    <string name="control_editor_style_cabinet_delete">Tem certeza de que deseja excluir o estilo salvo %s?</string>
+
+    <string name="guide_editor_style_cabinet_title">Você também pode adicionar seus estilos favoritos à coleção de estilos compartilhada!</string>
+    <string name="guide_editor_style_cabinet_text">A coleção de estilos é global: não importa qual layout de controle você esteja editando, os estilos dela estarão sempre aqui~</string>
+    <string name="guide_editor_style_cabinet_note">Aqui você pode adicionar os estilos salvos ao layout de controle atual para usá-los~</string>
     <string name="guide_editor_preview">Use o modo de pré-visualização para testar seu layout de controle</string>
     <string name="guide_editor_save">Ao terminar de editar, não se esqueça de salvar o layout de controle!</string>
     <string name="guide_tip_blank">Toque em qualquer área em branco para ir para o próximo passo</string>
@@ -1442,4 +1458,17 @@
     <string name="versions_modify_diff_install">Instalar %1$s %2$s</string>
     <string name="versions_modify_success">Versão modificada com sucesso!</string>
     <string name="versions_modify_error_message">Ocorreu um erro ao modificar a versão:</string>
+    <string name="account_wardrobe">Guarda-roupa</string>
+    <string name="home_server_card_settings">Configurações da placa de servidor</string>
+    <string name="home_server_card_quick_launch">Botão de inicialização rápida</string>
+    <string name="home_server_card_version_current">Versão selecionada atual</string>
+    <string name="home_server_card_version_specific">Versão específica</string>
+    <string name="home_server_card_refresh_failed">Falha ao atualizar as informações do servidor</string>
+    <string name="saves_manage_compress_share">Comprimir e Compartilhar o Save</string>
+    <string name="saves_manage_compressing">Comprimindo save: %s</string>
+    <string name="saves_manage_export_failed">Ocorreu um erro ao compactar o arquivo do save</string>
+    <string name="settings_renderer_max_refresh_rate_title">Solicitar os HZ máximos da tela</string>
+    <string name="settings_renderer_max_refresh_rate_summary">Solicita que a tela mude para a taxa de HZ mais alta compatível com a resolução atual, removendo o limite de FPS em alguns dispositivos</string>
+    <string name="versions_config_renderer_reset_global">Redefinir para Global</string>
+    <string name="versions_config_renderer_reset_global_message">O Launcher descartará a configuração desta versão para %s e redefinirá para usar a configuração global. Esta ação não pode ser desfeita.</string>
 </resources>

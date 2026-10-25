@@ -1,6 +1,6 @@
 /*
  * Zalith Launcher 2
- * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ * Copyright (C) 2025-2026 MovTery <movtery228@qq.com> and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -72,6 +72,7 @@ fun FmAppBar(
     onRefresh: () -> Unit,
     onImportFile: () -> Unit,
     onImportDir: () -> Unit,
+    onBrowseExternal: () -> Unit,
     onSearch: () -> Unit,
     searchEnabled: Boolean = true,
     onSortChange: (SortConfig) -> Unit,
@@ -197,6 +198,22 @@ fun FmAppBar(
                     onClick = {
                         menuExpanded = false
                         onImportDir()
+                    }
+                )
+
+                DropdownMenuItem(
+                    text = {
+                        Text(stringResource(R.string.fm_browse_external))
+                    },
+                    leadingIcon = {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_document_search_filled),
+                            contentDescription = null
+                        )
+                    },
+                    onClick = {
+                        menuExpanded = false
+                        onBrowseExternal()
                     }
                 )
 

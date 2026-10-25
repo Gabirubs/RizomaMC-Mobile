@@ -1,6 +1,6 @@
 /*
  * Zalith Launcher 2
- * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ * Copyright (C) 2025-2026 MovTery <movtery228@qq.com> and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,13 +51,13 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
 import com.movtery.zalithlauncher.R
-import com.movtery.zalithlauncher.filemanager.ui.components.FmAlertDialog
 import com.movtery.zalithlauncher.filemanager.ui.dialogs.FmProgressDialog
 import com.movtery.zalithlauncher.filemanager.ui.theme.FmAnimations
 import com.movtery.zalithlauncher.filemanager.ui.theme.fmBackgroundColor
 import com.movtery.zalithlauncher.filemanager.ui.theme.fmOnBackgroundColor
 import com.movtery.zalithlauncher.filemanager.viewmodel.FileManagerViewModel
 import com.movtery.zalithlauncher.filemanager.viewmodel.FmInitState
+import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
@@ -270,7 +270,7 @@ fun FileManagerRootScreen(
 
                     // 错误对话框
                     errorMessage?.let { message ->
-                        FmAlertDialog(
+                        SimpleAlertDialog(
                             title = stringResource(R.string.generic_error),
                             text = message,
                             onDismiss = { errorMessage = null }

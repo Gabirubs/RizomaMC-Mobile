@@ -1,6 +1,6 @@
 /*
  * Zalith Launcher 2
- * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ * Copyright (C) 2025-2026 MovTery <movtery228@qq.com> and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,6 +37,7 @@ import com.movtery.zalithlauncher.setting.enums.GamepadInputMode
 import com.movtery.zalithlauncher.setting.enums.GestureActionType
 import com.movtery.zalithlauncher.setting.enums.MirrorSourceType
 import com.movtery.zalithlauncher.setting.enums.MouseControlMode
+import com.movtery.zalithlauncher.setting.enums.MouseTouchBlockMode
 import com.movtery.zalithlauncher.setting.enums.ResolutionRule
 import com.movtery.zalithlauncher.ui.control.HotbarRule
 import com.movtery.zalithlauncher.ui.control.gamepad.JoystickMode
@@ -87,11 +88,6 @@ object AllSettings : SettingsRegistry() {
      * 游戏页面全屏化
      */
     val gameFullScreen = boolSetting("gameFullScreen", true)
-
-    /**
-     * 使用 SurfaceView 渲染
-     */
-    val useSurfaceView = boolSetting("useSurfaceView", false)
 
     /**
      * 持续性能模式
@@ -249,6 +245,11 @@ object AllSettings : SettingsRegistry() {
      * 虚拟鼠标控制模式
      */
     val mouseControlMode = enumSetting("mouseControlMode", MouseControlMode.SLIDE)
+
+    /**
+     * 阻止半屏触摸虚拟鼠标
+     */
+    val mouseTouchBlockMode = enumSetting("mouseTouchBlockMode", MouseTouchBlockMode.NONE)
 
     /**
      * 鼠标控制长按延迟

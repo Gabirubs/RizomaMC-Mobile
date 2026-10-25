@@ -1,6 +1,6 @@
 /*
  * Zalith Launcher 2
- * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ * Copyright (C) 2025-2026 MovTery <movtery228@qq.com> and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -142,21 +142,11 @@ fun ExportTypeSelectScreen(
                     //CurseForge
                     TypeItem(
                         modifier = Modifier.fillMaxWidth(),
-                        position = CardPosition.Middle,
+                        position = CardPosition.Bottom,
                         title = stringResource(R.string.versions_export_type_curseforge),
                         summary = stringResource(R.string.versions_export_type_summary_common),
                         icon = painterResource(R.drawable.img_platform_curseforge),
                         onClick = { onTypeSelect(PackType.CurseForge) }
-                    )
-
-                    //MultiMC
-                    TypeItem(
-                        modifier = Modifier.fillMaxWidth(),
-                        position = CardPosition.Bottom,
-                        title = stringResource(R.string.versions_export_type_multimc),
-                        summary = stringResource(R.string.versions_export_type_multimc_summary, BuildKeys.LAUNCHER_SHORT_NAME),
-                        icon = painterResource(R.drawable.img_platform_multimc),
-                        onClick = { onTypeSelect(PackType.MultiMC) }
                     )
                 }
             }

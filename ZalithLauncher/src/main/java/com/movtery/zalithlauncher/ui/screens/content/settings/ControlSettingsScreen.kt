@@ -1,6 +1,6 @@
 /*
  * Zalith Launcher 2
- * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ * Copyright (C) 2025-2026 MovTery <movtery228@qq.com> and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -56,6 +56,7 @@ import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.enums.GestureActionType
 import com.movtery.zalithlauncher.setting.enums.MouseControlMode
+import com.movtery.zalithlauncher.setting.enums.MouseTouchBlockMode
 import com.movtery.zalithlauncher.setting.unit.ParcelableSettingUnit
 import com.movtery.zalithlauncher.setting.unit.floatRange
 import com.movtery.zalithlauncher.ui.androidText
@@ -337,6 +338,16 @@ fun ControlSettingsScreen(
                         items = MouseControlMode.entries,
                         title = stringResource(R.string.settings_control_mouse_control_mode_title),
                         summary = stringResource(R.string.settings_control_mouse_control_mode_summary),
+                        getItemText = { stringResource(it.nameRes) }
+                    )
+
+                    ListSettingsCard(
+                        modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Middle,
+                        unit = AllSettings.mouseTouchBlockMode,
+                        items = MouseTouchBlockMode.entries,
+                        title = stringResource(R.string.settings_control_mouse_block_touch_title),
+                        summary = stringResource(R.string.settings_control_mouse_block_touch_summary),
                         getItemText = { stringResource(it.nameRes) }
                     )
 

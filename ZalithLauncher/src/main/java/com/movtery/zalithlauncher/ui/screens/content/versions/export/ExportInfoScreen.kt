@@ -1,6 +1,6 @@
 /*
  * Zalith Launcher 2
- * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ * Copyright (C) 2025-2026 MovTery <movtery228@qq.com> and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -71,7 +71,6 @@ private const val OPTIONAL_GAME_ARGS = "requireGameArgs"
 private const val OPTIONAL_JAVA_ARGS = "requireJavaArgs"
 private const val OPTIONAL_WEBSITE_URL = "requireWebsiteUrl"
 private const val OPTIONAL_MIN_MEMORY = "requireMinMemory"
-private const val OPTIONAL_MAX_MEMORY = "requireMaxMemory"
 private const val OPTIONAL_PACK_MODRINTH = "requirePackModrinth"
 private const val OPTIONAL_PACK_CURSEFORGE = "requirePackCurseForge"
 
@@ -87,7 +86,6 @@ private fun rememberOptionalItemIDList(
             if (options.requireJavaArgs) add(OPTIONAL_JAVA_ARGS)
             if (options.requireWebsiteUrl) add(OPTIONAL_WEBSITE_URL)
             if (options.requireMinMemory) add(OPTIONAL_MIN_MEMORY)
-            if (options.requireMaxMemory) add(OPTIONAL_MAX_MEMORY)
             if (options.requirePackModrinth) add(OPTIONAL_PACK_MODRINTH)
             if (options.requirePackCurseForge) add(OPTIONAL_PACK_CURSEFORGE)
         }
@@ -309,30 +307,6 @@ fun ExportInfoScreen(
                         },
                         onValueChangeFinished = {
                             onInfoEdited(info.copy(minMemory = memory))
-                        },
-                        valueRange = 0f..getMaxMemoryForSettings(LocalContext.current).toFloat(),
-                        suffix = "MB"
-                    )
-                }
-            }
-
-            if (info.packType.options.requireMaxMemory) {
-                //最大内存
-                animatedItem(scope) { yOffset ->
-                    var memory by remember(info) { mutableIntStateOf(info.maxMemory) }
-
-                    IntSliderSettingsCard(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
-                        position = optionalItemIDs.rememberCardPosition(OPTIONAL_MAX_MEMORY),
-                        title = stringResource(R.string.versions_export_pack_max_memory),
-                        value = memory,
-                        onValueChange = {
-                            memory = it
-                        },
-                        onValueChangeFinished = {
-                            onInfoEdited(info.copy(maxMemory = memory))
                         },
                         valueRange = 0f..getMaxMemoryForSettings(LocalContext.current).toFloat(),
                         suffix = "MB"
