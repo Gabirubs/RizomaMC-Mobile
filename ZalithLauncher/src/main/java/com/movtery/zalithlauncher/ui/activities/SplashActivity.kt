@@ -39,7 +39,9 @@ import com.movtery.zalithlauncher.components.jre.Jre
 import com.movtery.zalithlauncher.components.jre.UnpackJnaTask
 import com.movtery.zalithlauncher.components.jre.UnpackJreTask
 import com.movtery.zalithlauncher.setting.AllSettings
+import com.movtery.zalithlauncher.setting.launcherMMKV
 import com.movtery.zalithlauncher.ui.base.BaseAppCompatActivity
+import com.movtery.zalithlauncher.ui.screens.navigateOnce
 import com.movtery.zalithlauncher.ui.screens.splash.SplashOperation
 import com.movtery.zalithlauncher.ui.screens.splash.SplashScreen
 import com.movtery.zalithlauncher.ui.theme.ZalithLauncherTheme
@@ -49,9 +51,6 @@ import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.viewmodel.SplashBackStackViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -67,6 +66,9 @@ const val IMPORT_TYPE_MODPACK = "modpack"
 const val IMPORT_TYPE_CONTROLS = "controls"
 const val IMPORT_TYPE_UNKNOWN = "unknown"
 
+private const val WELCOME_VERSION_KEY = "welcomeVersionKey"
+private const val WELCOME_VERSION_VALUE = 1
+
 @SuppressLint("CustomSplashScreen")
 @AndroidEntryPoint
 class SplashActivity : BaseAppCompatActivity() {
@@ -75,10 +77,11 @@ class SplashActivity : BaseAppCompatActivity() {
 
     private var pendingImportIntent: Intent? = null
 
-    private val _operation = MutableStateFlow<SplashOperation>(SplashOperation.Checking)
-    val operation = _operation.asStateFlow()
-
     private val backStackViewModel: SplashBackStackViewModel by viewModels()
+
+    private fun switchScreen(screen: SplashOperation) {
+        backStackViewModel.splashScreen.backStack.navigateOnce(screen)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
@@ -94,8 +97,12 @@ class SplashActivity : BaseAppCompatActivity() {
                     contentColor = onBackgroundColor()
                 ) {
                     SplashScreen(
-                        operation = operation,
                         startAllTask = { startAllTask() },
+                        onWelcomeFinished = {
+                            launcherMMKV().putInt(WELCOME_VERSION_KEY, WELCOME_VERSION_VALUE).apply()
+                            switchScreen(SplashOperation.Loading)
+                            checkTasksToMain()
+                        },
                         unpackItems = unpackItems,
                         screenViewModel = backStackViewModel
                     )
@@ -104,14 +111,16 @@ class SplashActivity : BaseAppCompatActivity() {
         }
 
         lifecycleScope.launch(Dispatchers.Main) {
+            switchScreen(SplashOperation.Loading)
+
             withContext(Dispatchers.IO) {
                 checkAllTask()
             }
 
-            if (checkTasksToMain()) {
-                _operation.update { SplashOperation.Finished }
+            if (launcherMMKV().getInt(WELCOME_VERSION_KEY, 0) < WELCOME_VERSION_VALUE) {
+                switchScreen(SplashOperation.Welcome)
             } else {
-                _operation.update { SplashOperation.Ready }
+                checkTasksToMain()
             }
         }
     }
@@ -213,7 +222,7 @@ class SplashActivity : BaseAppCompatActivity() {
     }
 
     private fun startAllTask() {
-        _operation.update { SplashOperation.Running }
+        switchScreen(SplashOperation.Unpacking)
 
         lifecycleScope.launch {
             val jobs = unpackItems
@@ -236,8 +245,6 @@ class SplashActivity : BaseAppCompatActivity() {
                 }
             jobs.joinAll()
         }.invokeOnCompletion {
-            _operation.update { SplashOperation.Finished }
-
             AllSettings.javaRuntime.apply {
                 //检查并设置默认的Java环境
                 if (getValue().isEmpty()) save(Jre.JRE_8.jreName)
@@ -258,21 +265,30 @@ class SplashActivity : BaseAppCompatActivity() {
         }
     }
 
-    private fun checkTasksToMain(): Boolean {
-        if (!areAllTasksFinished()) return false
+    private fun checkTasksToMain() {
+        fun run(): Boolean {
+            if (!areAllTasksFinished()) return false
 
-        Logger.info(TAG, "All content that needs to be extracted is already the latest version!")
+            Logger.info(TAG, "All content that needs to be extracted is already the latest version!")
 
-        if (isImportIntent(intent) && !isLauncherIntent(intent)) {
-            val success = handleImportIntent(intent)
-            if (success) {
-                finish()
-                return true
+            if (isImportIntent(intent) && !isLauncherIntent(intent)) {
+                val success = handleImportIntent(intent)
+                if (success) {
+                    finish()
+                    return true
+                }
             }
+
+            swapToMain()
+            return true
         }
 
-        swapToMain()
-        return true
+        val screen = if (run()) {
+            SplashOperation.Loading
+        } else {
+            SplashOperation.Unpacking
+        }
+        switchScreen(screen)
     }
 
     private fun swapToMain() {
@@ -332,8 +348,7 @@ class SplashActivity : BaseAppCompatActivity() {
     }
 
     private fun isLauncherIntent(intent: Intent?): Boolean {
-        if (intent == null) return false
-        return intent.action == Intent.ACTION_MAIN &&
+        return intent != null && intent.action == Intent.ACTION_MAIN &&
                 intent.categories?.contains(Intent.CATEGORY_LAUNCHER) == true
     }
 

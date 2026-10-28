@@ -18,9 +18,11 @@
 
 package com.movtery.zalithlauncher.ui.screens.splash
 
-sealed interface SplashOperation {
-    data object Checking : SplashOperation
-    data object Ready : SplashOperation
-    data object Running : SplashOperation
-    data object Finished : SplashOperation
+import com.movtery.zalithlauncher.ui.screens.TitledNavKey
+import kotlinx.serialization.Serializable
+
+sealed interface SplashOperation : TitledNavKey {
+    @Serializable data object Loading : SplashOperation
+    @Serializable data object Welcome : SplashOperation
+    @Serializable data object Unpacking : SplashOperation
 }
