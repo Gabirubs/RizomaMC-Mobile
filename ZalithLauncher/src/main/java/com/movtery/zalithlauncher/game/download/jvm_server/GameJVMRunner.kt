@@ -48,11 +48,11 @@ private val WAIT_LOG_INTERVAL: Duration = 2.seconds
 /** 单次 JVM 运行等待退出码的总时限 */
 private val JVM_EXIT_TIMEOUT: Duration = 15.minutes
 /** 前台服务启动失败后的最大重试次数 */
-private const val SERVICE_START_RETRY_MAX = 4
+private const val SERVICE_START_RETRY_MAX = 6
 /** 前台服务启动失败重试的退避基准间隔 */
-private val SERVICE_START_RETRY_DELAY: Duration = 500.milliseconds
+private val SERVICE_START_RETRY_DELAY: Duration = 2.seconds
 /** 互斥进程消失后、重新拉起前的冷却时长 */
-private val POST_PROCESS_EXIT_COOLDOWN: Duration = 1.seconds
+private val POST_PROCESS_EXIT_COOLDOWN: Duration = 6.seconds
 
 /**
  * 运行一个简易的JVM环境，安装ModLoader，同时在jvm退出时，尝试使用其他的Java环境重试
