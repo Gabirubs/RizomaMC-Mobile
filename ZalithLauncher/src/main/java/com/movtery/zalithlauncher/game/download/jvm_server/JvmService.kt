@@ -47,7 +47,7 @@ import java.net.InetSocketAddress
 
 private const val TAG = "JvmService"
 
-class JvmService : Service() {
+open class JvmService : Service() {
     private val scope = CoroutineScope(Dispatchers.Default)
 
     override fun onBind(intent: Intent?): IBinder? = null

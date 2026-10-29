@@ -167,6 +167,87 @@
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_TYPE"
                 android:value="Run Java Virtual Machine for game or server tasks" />
         </service>
+        <service
+            android:name=".game.download.jvm_server.JvmService1"
+            android:enabled="true"
+            android:foregroundServiceType="specialUse"
+            android:process=":jvm1">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_TYPE"
+                android:value="Run Java Virtual Machine for game or server tasks" />
+        </service>
+        <service
+            android:name=".game.download.jvm_server.JvmService2"
+            android:enabled="true"
+            android:foregroundServiceType="specialUse"
+            android:process=":jvm2">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_TYPE"
+                android:value="Run Java Virtual Machine for game or server tasks" />
+        </service>
+        <service
+            android:name=".game.download.jvm_server.JvmService3"
+            android:enabled="true"
+            android:foregroundServiceType="specialUse"
+            android:process=":jvm3">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_TYPE"
+                android:value="Run Java Virtual Machine for game or server tasks" />
+        </service>
+        <service
+            android:name=".game.download.jvm_server.JvmService4"
+            android:enabled="true"
+            android:foregroundServiceType="specialUse"
+            android:process=":jvm4">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_TYPE"
+                android:value="Run Java Virtual Machine for game or server tasks" />
+        </service>
+        <service
+            android:name=".game.download.jvm_server.JvmService5"
+            android:enabled="true"
+            android:foregroundServiceType="specialUse"
+            android:process=":jvm5">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_TYPE"
+                android:value="Run Java Virtual Machine for game or server tasks" />
+        </service>
+        <service
+            android:name=".game.download.jvm_server.JvmService6"
+            android:enabled="true"
+            android:foregroundServiceType="specialUse"
+            android:process=":jvm6">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_TYPE"
+                android:value="Run Java Virtual Machine for game or server tasks" />
+        </service>
+        <service
+            android:name=".game.download.jvm_server.JvmService7"
+            android:enabled="true"
+            android:foregroundServiceType="specialUse"
+            android:process=":jvm7">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_TYPE"
+                android:value="Run Java Virtual Machine for game or server tasks" />
+        </service>
+        <service
+            android:name=".game.download.jvm_server.JvmService8"
+            android:enabled="true"
+            android:foregroundServiceType="specialUse"
+            android:process=":jvm8">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_TYPE"
+                android:value="Run Java Virtual Machine for game or server tasks" />
+        </service>
+        <service
+            android:name=".game.download.jvm_server.JvmService9"
+            android:enabled="true"
+            android:foregroundServiceType="specialUse"
+            android:process=":jvm9">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_TYPE"
+                android:value="Run Java Virtual Machine for game or server tasks" />
+        </service>
 
         <service
             android:name=".game.launch.GameService"

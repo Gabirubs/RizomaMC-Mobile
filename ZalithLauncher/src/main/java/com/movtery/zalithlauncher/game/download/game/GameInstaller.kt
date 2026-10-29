@@ -571,7 +571,7 @@ class GameInstaller(
 
         CoroutineScope(Dispatchers.Main).launch {
             //停止Jvm服务
-            val intent = Intent(GlobalContext.applicationContext, JvmService::class.java)
+            val intent = Intent(GlobalContext.applicationContext, com.movtery.zalithlauncher.game.download.jvm_server.currentJvmServiceClass())
             GlobalContext.applicationContext.stopService(intent)
             JVMSocketServer.stop()
         }

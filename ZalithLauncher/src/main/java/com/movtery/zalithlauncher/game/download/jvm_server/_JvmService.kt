@@ -55,7 +55,7 @@ fun startJvmService(
         putString(SERVICE_POST_SUMMARY, postSummary)
         putParcelable(SERVICE_POST_PROGRESS, postProgress)
     }
-    val intent = Intent(context, JvmService::class.java).apply {
+    val intent = Intent(context, nextJvmServiceClass()).apply {
         putExtras(bundle)
     }
     context.startForegroundService(intent)
@@ -74,7 +74,8 @@ private val JVM_EXCLUSIVE_SUFFIXES = listOf(":jvm", ":game")
 
 /** 判定进程名是否属于运行安装 JVM 前必须消失的互斥进程 */
 internal fun isJvmExclusiveProcess(processName: String, mainProcessName: String): Boolean =
-    JVM_EXCLUSIVE_SUFFIXES.any { processName == mainProcessName + it }
+    JVM_EXCLUSIVE_SUFFIXES.any { processName == mainProcessName + it } ||
+        processName.startsWith("$mainProcessName:jvm")
 
 /**
  * 列出仍在运行的互斥子进程

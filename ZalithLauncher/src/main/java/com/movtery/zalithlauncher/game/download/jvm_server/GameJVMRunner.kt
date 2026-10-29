@@ -50,9 +50,9 @@ private val JVM_EXIT_TIMEOUT: Duration = 15.minutes
 /** 前台服务启动失败后的最大重试次数 */
 private const val SERVICE_START_RETRY_MAX = 6
 /** 前台服务启动失败重试的退避基准间隔 */
-private val SERVICE_START_RETRY_DELAY: Duration = 2.seconds
+private val SERVICE_START_RETRY_DELAY: Duration = 1.seconds
 /** 互斥进程消失后、重新拉起前的冷却时长 */
-private val POST_PROCESS_EXIT_COOLDOWN: Duration = 6.seconds
+private val POST_PROCESS_EXIT_COOLDOWN: Duration = 2.seconds
 
 /**
  * 运行一个简易的JVM环境，安装ModLoader，同时在jvm退出时，尝试使用其他的Java环境重试
@@ -217,7 +217,7 @@ suspend fun startJvmServiceAndWaitExit(
             // 超时，停掉服务与接收端，让安装以可见错误结束而不是永久挂起
             Logger.error(TAG, "Timed out ($JVM_EXIT_TIMEOUT) waiting for JVM exit code, stopping service...")
             runCatching {
-                GlobalContext.stopService(Intent(GlobalContext, JvmService::class.java))
+                GlobalContext.stopService(Intent(GlobalContext, currentJvmServiceClass()))
             }
             throw IOException("Timed out waiting for the JVM process to exit.")
         }
