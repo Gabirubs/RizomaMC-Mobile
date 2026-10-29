@@ -512,8 +512,8 @@ private fun NavigationUI(
                         onOpenLink = {
                             eventViewModel.sendEvent(EventViewModel.Event.OpenLink(it))
                         },
-                        onPlay = { version, address ->
-                            eventViewModel.sendEvent(EventViewModel.Event.Launch.PlayServer(version, address))
+                        onPlay = { version ->
+                            eventViewModel.sendEvent(EventViewModel.Event.Launch.Game(version))
                         }
                     )
                 }

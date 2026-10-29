@@ -1,6 +1,17 @@
 package com.movtery.zalithlauncher.rizoma
 
 import android.content.Context
+import android.graphics.Matrix
+import android.graphics.SurfaceTexture
+import android.media.MediaPlayer
+import android.net.Uri
+import android.view.Surface
+import android.view.TextureView
+import androidx.compose.foundation.Canvas
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -97,30 +108,61 @@ private const val ZINK = "0fa435e2-46df-45c9-906c-b29606aaef00"
 private const val DISCORD = "https://discord.rizomamc.com.br"
 private const val LOJA = "https://rizomamc.com.br"
 
-private enum class Fase { PRONTO, PREPARANDO, INSTALANDO, ATUALIZANDO, ABRINDO, ERRO }
+private enum class Fase { VERIFICANDO, PRONTO, PREPARANDO, INSTALANDO, ATUALIZANDO, ABRINDO, ERRO }
 
 /** Tela única do RizomaMC: um botão que instala, atualiza e entra no servidor. */
 @Composable
 fun RizomaHome(
     onSettings: () -> Unit,
     onOpenLink: (String) -> Unit,
-    onPlay: (version: Version, address: String) -> Unit
+    onPlay: (version: Version) -> Unit
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    var fase by remember { mutableStateOf(Fase.PRONTO) }
-    var detalhe by remember { mutableStateOf("Pronto para jogar") }
+    var fase by remember { mutableStateOf(Fase.VERIFICANDO) }
+    var detalhe by remember { mutableStateOf("Procurando atualizações...") }
+    var plano by remember { mutableStateOf<RizomaSync.Plano?>(null) }
+    var instalado by remember { mutableStateOf(true) }
+
+    /** Igual ao PC: ao abrir, já confere no GitHub se tem algo para baixar. */
+    fun verificar() {
+        scope.launch {
+            fase = Fase.VERIFICANDO
+            detalhe = "Procurando atualizações..."
+            try {
+                VersionsManager.refresh("RizomaMC")
+                delay(800)
+                val versao = acharVersao()
+                instalado = versao != null
+                if (versao == null) {
+                    plano = null
+                    detalhe = "Primeira vez: o jogo será instalado ao tocar em INSTALAR"
+                } else {
+                    val p = RizomaSync.verificar(versao.getGameDir())
+                    plano = p
+                    detalhe = if (p.emDia) "Tudo atualizado • modpack v${p.versao}"
+                    else "Nova versão ${p.versao}: ${p.baixar.size} arquivo(s) para baixar"
+                }
+                fase = Fase.PRONTO
+            } catch (e: Throwable) {
+                fase = Fase.ERRO
+                detalhe = "Sem conexão com o GitHub. Toque para tentar de novo."
+            }
+        }
+    }
     var progresso by remember { mutableFloatStateOf(-1f) }
     var online by remember { mutableStateOf<Int?>(null) }
     var statusLido by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
+        verificar()
         online = lerStatus()
         statusLido = true
     }
 
     fun jogar() {
-        if (fase != Fase.PRONTO && fase != Fase.ERRO) return
+        if (fase == Fase.ERRO) return verificar()
+        if (fase != Fase.PRONTO) return
         scope.launch {
             try {
                 fase = Fase.PREPARANDO
@@ -139,9 +181,9 @@ fun RizomaHome(
                 detalhe = "Verificando atualizações"
                 progresso = -1f
                 val pasta = versao.getGameDir()
-                val plano = RizomaSync.verificar(pasta)
-                if (!plano.emDia) {
-                    RizomaSync.aplicar(pasta, plano) { feito, total ->
+                val p = RizomaSync.verificar(pasta)
+                if (!p.emDia) {
+                    RizomaSync.aplicar(pasta, p) { feito, total ->
                         detalhe = "Baixando atualização • ${feito / 1048576} de ${total / 1048576} MB"
                         progresso = if (total > 0) feito.toFloat() / total else -1f
                     }
@@ -150,10 +192,12 @@ fun RizomaHome(
                 fase = Fase.ABRINDO
                 detalhe = "Abrindo o jogo"
                 progresso = -1f
-                onPlay(versao, SERVIDOR)
+                onPlay(versao)
                 delay(3000)
+                instalado = true
+                plano = p.copy(baixar = emptyList(), apagar = emptyList(), bytes = 0)
                 fase = Fase.PRONTO
-                detalhe = "Pronto para jogar • modpack v${plano.versao}"
+                detalhe = "Tudo atualizado • modpack v${p.versao}"
             } catch (e: Throwable) {
                 fase = Fase.ERRO
                 detalhe = e.message ?: "Algo deu errado. Tente de novo."
@@ -195,7 +239,7 @@ fun RizomaHome(
                 Spacer(Modifier.height(40.dp))
                 CardModo(R.drawable.rizoma_card_dayz, "MUNDO ABERTO • PVP", "SERVIDOR DAYZ", Modifier.weight(1f))
                 CardModo(R.drawable.rizoma_card_minigames, "FFA • TDM • GUN GAME", "MINIGAMES", Modifier.weight(1f))
-                BotaoJogar(fase) { jogar() }
+                BotaoJogar(fase, instalado, plano?.emDia ?: true) { jogar() }
             }
         }
     }
@@ -203,16 +247,80 @@ fun RizomaHome(
 
 @Composable
 private fun FundoAnimado() {
-    val t = rememberInfiniteTransition(label = "fundo")
-    val escala by t.animateFloat(1.0f, 1.12f, infiniteRepeatable(tween(30000, easing = LinearEasing), RepeatMode.Reverse), label = "zoom")
     Image(
         painter = painterResource(R.drawable.rizoma_fundo),
         contentDescription = null,
         contentScale = ContentScale.Crop,
-        modifier = Modifier.fillMaxSize().graphicsLayer { scaleX = escala; scaleY = escala }
+        modifier = Modifier.fillMaxSize()
     )
-    Box(Modifier.fillMaxSize().background(Brush.horizontalGradient(0f to Color(0xD1000000), 0.45f to Color(0x73000000), 0.7f to Color(0x00000000))))
-    Box(Modifier.fillMaxSize().background(Brush.verticalGradient(0f to Color(0xB3000000), 0.3f to Color(0x00000000), 0.7f to Color(0x00000000), 1f to Color(0xE0000000))))
+    VideoFundo()
+    Fumaca()
+    Box(Modifier.fillMaxSize().background(Brush.horizontalGradient(0f to Color(0xD1000000), 0.42f to Color(0x73000000), 0.66f to Color(0x00000000))))
+    Box(Modifier.fillMaxSize().background(Brush.verticalGradient(0f to Color(0xB3000000), 0.25f to Color(0x00000000), 0.7f to Color(0x00000000), 1f to Color(0xE0000000))))
+}
+
+/** O mesmo vídeo do launcher do PC, em loop, sem som e cortado para preencher a tela. */
+@Composable
+private fun VideoFundo() {
+    val player = remember { MediaPlayer() }
+    DisposableEffect(Unit) { onDispose { player.release() } }
+    AndroidView(
+        modifier = Modifier.fillMaxSize(),
+        factory = { ctx ->
+            TextureView(ctx).apply {
+                surfaceTextureListener = object : TextureView.SurfaceTextureListener {
+                    override fun onSurfaceTextureAvailable(st: SurfaceTexture, w: Int, h: Int) {
+                        try {
+                            player.setDataSource(ctx, Uri.parse("android.resource://${ctx.packageName}/${R.raw.rizoma_fundo}"))
+                            player.setSurface(Surface(st))
+                            player.isLooping = true
+                            player.setVolume(0f, 0f)
+                            player.setOnPreparedListener { mp ->
+                                val vw = mp.videoWidth.toFloat()
+                                val vh = mp.videoHeight.toFloat()
+                                if (vw > 0 && vh > 0) {
+                                    val escala = maxOf(w / vw, h / vh)
+                                    val m = Matrix()
+                                    m.setScale(vw * escala / w, vh * escala / h, w / 2f, h / 2f)
+                                    setTransform(m)
+                                }
+                                mp.start()
+                            }
+                            player.prepareAsync()
+                        } catch (_: Throwable) {
+                        }
+                    }
+
+                    override fun onSurfaceTextureSizeChanged(st: SurfaceTexture, w: Int, h: Int) {}
+                    override fun onSurfaceTextureDestroyed(st: SurfaceTexture): Boolean = true
+                    override fun onSurfaceTextureUpdated(st: SurfaceTexture) {}
+                }
+            }
+        }
+    )
+}
+
+/** Névoa clara atravessando a tela devagar, igual ao PC. */
+@Composable
+private fun Fumaca() {
+    val inf = rememberInfiniteTransition(label = "fumaca")
+    val t by inf.animateFloat(0f, 1f, infiniteRepeatable(tween(34000, easing = LinearEasing), RepeatMode.Reverse), label = "t")
+    Canvas(Modifier.fillMaxSize()) {
+        fun nuvem(x: Float, y: Float, rx: Float, ry: Float, alpha: Float) {
+            val c = Offset(size.width * x, size.height * y)
+            val r = maxOf(size.width * rx, size.height * ry)
+            drawOval(
+                brush = Brush.radialGradient(listOf(Color(190, 200, 212, (alpha * 255).toInt()), Color(0x00BEC8D4)), center = c, radius = r),
+                topLeft = Offset(c.x - size.width * rx, c.y - size.height * ry),
+                size = Size(size.width * rx * 2, size.height * ry * 2)
+            )
+        }
+        val a = kotlin.math.sin(t * Math.PI).toFloat()
+        nuvem(.15f + .25f * t, .74f, .32f, .16f, .16f)
+        nuvem(.75f - .2f * t, .62f, .26f, .12f, .12f)
+        nuvem(.45f + .1f * a, .88f, .3f, .12f, .14f)
+        nuvem(.9f - .3f * t, .82f, .28f, .1f, .1f)
+    }
 }
 
 @Composable
@@ -284,7 +392,7 @@ private fun Rodape(online: Int?, statusLido: Boolean, detalhe: String, fase: Fas
                     }
                 )
             )
-            if (fase == Fase.INSTALANDO || fase == Fase.ATUALIZANDO || fase == Fase.PREPARANDO || fase == Fase.ABRINDO) {
+            if (fase != Fase.PRONTO && fase != Fase.ERRO) {
                 Spacer(Modifier.height(6.dp))
                 val mod = Modifier.fillMaxWidth().height(4.dp).clip(RoundedCornerShape(2.dp))
                 if (progresso in 0f..1f) {
@@ -309,10 +417,11 @@ private val CantoCortado = GenericShape { size, _ ->
 }
 
 @Composable
-private fun BotaoJogar(fase: Fase, onClick: () -> Unit) {
+private fun BotaoJogar(fase: Fase, instalado: Boolean, emDia: Boolean, onClick: () -> Unit) {
     val ocupado = fase != Fase.PRONTO && fase != Fase.ERRO
     val texto = when (fase) {
-        Fase.PRONTO -> "JOGAR"
+        Fase.VERIFICANDO -> "VERIFICANDO"
+        Fase.PRONTO -> if (!instalado) "INSTALAR" else if (emDia) "JOGAR" else "ATUALIZAR"
         Fase.PREPARANDO -> "PREPARANDO"
         Fase.INSTALANDO -> "INSTALANDO"
         Fase.ATUALIZANDO -> "ATUALIZANDO"
