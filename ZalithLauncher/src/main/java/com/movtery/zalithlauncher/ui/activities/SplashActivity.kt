@@ -117,7 +117,7 @@ class SplashActivity : BaseAppCompatActivity() {
                 checkAllTask()
             }
 
-            if (true/*launcherMMKV().getInt(WELCOME_VERSION_KEY, 0) < WELCOME_VERSION_VALUE*/) {
+            if (launcherMMKV().getInt(WELCOME_VERSION_KEY, 0) < WELCOME_VERSION_VALUE) {
                 switchScreen(SplashOperation.Welcome)
             } else {
                 checkTasksToMain()
