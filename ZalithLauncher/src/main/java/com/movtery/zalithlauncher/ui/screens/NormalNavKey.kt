@@ -34,8 +34,6 @@ sealed interface NormalNavKey : TitledNavKey {
     @Contextual override val title: AndroidStringText?
         get() = null
 
-    /** 解压依赖内容屏幕（启动屏幕） */
-    @Serializable data object UnpackDeps: NormalNavKey
     /** 启动器主页屏幕 */
     @Serializable data object LauncherMain : NormalNavKey
     /** 账号管理屏幕 */

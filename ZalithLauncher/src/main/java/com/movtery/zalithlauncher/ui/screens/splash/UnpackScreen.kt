@@ -60,7 +60,6 @@ import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 import com.movtery.zalithlauncher.ui.components.animated
 import com.movtery.zalithlauncher.ui.components.rememberAnimatedContext
-import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.theme.itemColor
 import com.movtery.zalithlauncher.ui.theme.onItemColor
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
@@ -73,13 +72,13 @@ fun UnpackScreen(
     onAgreeClick: () -> Unit = {}
 ) {
     BaseScreen(
-        screenKey = NormalNavKey.UnpackDeps,
+        screenKey = SplashOperation.Unpacking,
         currentKey = screenViewModel.splashScreen.currentKey
     ) { isVisible ->
         Row(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+                .padding(all = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             UnpackTaskList(
