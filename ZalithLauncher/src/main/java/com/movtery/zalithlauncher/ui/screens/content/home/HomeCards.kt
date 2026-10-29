@@ -97,8 +97,23 @@ object HomeCards {
 
     /** 系统卡片（不可变更） */
     fun systemCards(): List<SystemCard> = buildList {
+        add(unofficialCard())
         if (BuildConfig.DEBUG) {
             add(debugWarningCard())
+        }
+    }
+
+    /** Aviso exigido pela licença: esta é uma versão modificada não oficial. */
+    private fun unofficialCard() = SystemCard(id = "system_unofficial") {
+        BackgroundCard(
+            modifier = Modifier.fillMaxWidth(),
+            shape = MaterialTheme.shapes.extraLarge
+        ) {
+            Text(
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                text = "Versão modificada não oficial, baseada no Zalith Launcher 2 (GPL-3.0). Feita para o servidor RizomaMC.",
+                style = MaterialTheme.typography.bodySmall
+            )
         }
     }
 

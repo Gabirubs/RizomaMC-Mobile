@@ -64,8 +64,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = zalithPackageName
-        applicationIdSuffix = ".v2"
+        applicationId = "br.com.rizomamc.mobile"
         minSdk = 26
         targetSdk = 34
         versionCode = launcherVersionCode

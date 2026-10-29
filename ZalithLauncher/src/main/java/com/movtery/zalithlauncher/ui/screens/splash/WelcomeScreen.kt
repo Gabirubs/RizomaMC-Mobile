@@ -445,11 +445,17 @@ private fun ProductBanner(
             contentDescription = null
         )
 
-        Text(
-            text = BuildKeys.LAUNCHER_NAME,
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold
-        )
+        Column {
+            Text(
+                text = BuildKeys.LAUNCHER_NAME,
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = "Versão modificada não oficial do Zalith Launcher 2",
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
     }
 }
 
