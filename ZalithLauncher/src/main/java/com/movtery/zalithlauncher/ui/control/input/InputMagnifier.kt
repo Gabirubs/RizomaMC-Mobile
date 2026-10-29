@@ -18,6 +18,7 @@
 
 package com.movtery.zalithlauncher.ui.control.input
 
+import android.graphics.Rect
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -53,12 +54,14 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
@@ -110,7 +113,10 @@ fun InputMagnifier(
     val density = LocalDensity.current
     val imeVisible = WindowInsets.isImeVisible
     val imeHeight = WindowInsets.ime.getBottom(density)
-    val inputOccludesGame = inputEnabled && imeVisible && imeHeight > 0
+    val rootView = LocalView.current.rootView
+    val visibleFrame = Rect().also { rootView.getWindowVisibleDisplayFrame(it) }
+    val inputOccludesGame = inputEnabled && imeVisible && rootView.height > 0 &&
+            rootView.height * 2 / 3 > visibleFrame.bottom
 
     LaunchedEffect(inputEnabled) {
         if (!inputEnabled) state.resetInputSession()
@@ -144,7 +150,8 @@ fun InputMagnifier(
                         modifier = Modifier
                             .align(Alignment.BottomEnd)
                             .padding(all = 16.dp)
-                            .size(40.dp),
+                            .size(40.dp)
+                            .focusProperties { canFocus = false },
                         colors = IconButtonDefaults.iconButtonColors(
                             containerColor = Color.Black.copy(alpha = 0.55f),
                             contentColor = Color.White,

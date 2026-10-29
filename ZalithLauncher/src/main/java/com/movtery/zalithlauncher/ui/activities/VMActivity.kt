@@ -70,6 +70,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
@@ -121,7 +122,6 @@ import com.movtery.zalithlauncher.setting.enums.ResolutionRule
 import com.movtery.zalithlauncher.terracotta.TerracottaVPNService
 import com.movtery.zalithlauncher.ui.base.BaseAppCompatActivity
 import com.movtery.zalithlauncher.ui.base.ObserveFullScreenSetting
-import com.movtery.zalithlauncher.ui.components.ContentCheckBox
 import com.movtery.zalithlauncher.ui.components.rememberBoxSize
 import com.movtery.zalithlauncher.ui.control.input.HidableInputLayout
 import com.movtery.zalithlauncher.ui.control.input.InputMagnifier
@@ -1033,7 +1033,9 @@ private fun InputMagnifierContent(
         Row {
             Box {
                 IconButton(
-                    modifier = Modifier.size(40.dp),
+                    modifier = Modifier
+                        .size(40.dp)
+                        .focusProperties { canFocus = false },
                     onClick = { menuExpanded = true }
                 ) {
                     Icon(
@@ -1049,6 +1051,7 @@ private fun InputMagnifierContent(
                     properties = PopupProperties(focusable = false)
                 ) {
                     DropdownMenuItem(
+                        modifier = Modifier.focusProperties { canFocus = false },
                         text = {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
@@ -1058,6 +1061,7 @@ private fun InputMagnifierContent(
                                     text = stringResource(R.string.game_menu_option_ime_magnifier_auto_show)
                                 )
                                 Checkbox(
+                                    modifier = Modifier.focusProperties { canFocus = false },
                                     checked = AllSettings.imeMagnifierAutoShow.state,
                                     onCheckedChange = {
                                         AllSettings.imeMagnifierAutoShow.save(
@@ -1076,7 +1080,9 @@ private fun InputMagnifierContent(
                 }
             }
             IconButton(
-                modifier = Modifier.size(40.dp),
+                modifier = Modifier
+                    .size(40.dp)
+                    .focusProperties { canFocus = false },
                 onClick = onClose,
             ) {
                 Icon(
