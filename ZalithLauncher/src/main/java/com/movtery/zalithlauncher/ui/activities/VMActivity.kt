@@ -23,6 +23,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
+import android.graphics.Bitmap
 import android.graphics.SurfaceTexture
 import android.hardware.display.DisplayManager
 import android.os.Build
@@ -42,24 +43,46 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.Keep
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.window.PopupProperties
+import androidx.core.graphics.createBitmap
 import androidx.core.graphics.drawable.toDrawable
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
@@ -101,6 +124,8 @@ import com.movtery.zalithlauncher.ui.base.BaseAppCompatActivity
 import com.movtery.zalithlauncher.ui.base.ObserveFullScreenSetting
 import com.movtery.zalithlauncher.ui.components.rememberBoxSize
 import com.movtery.zalithlauncher.ui.control.input.HidableInputLayout
+import com.movtery.zalithlauncher.ui.control.input.InputMagnifier
+import com.movtery.zalithlauncher.ui.control.input.InputMagnifierState
 import com.movtery.zalithlauncher.ui.control.input.TextInputMode
 import com.movtery.zalithlauncher.ui.screens.game.elements.OpenFolderLayer
 import com.movtery.zalithlauncher.ui.screens.game.elements.OpenFolderOperation
@@ -275,6 +300,8 @@ class VMViewModel : ViewModel() {
      */
     var textInputMode by mutableStateOf(TextInputMode.DISABLE)
 
+    val inputMagnifierState = InputMagnifierState()
+
     fun disableInputMode() {
         if (textInputMode == TextInputMode.ENABLE) textInputMode = TextInputMode.DISABLE
     }
@@ -356,12 +383,37 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener {
     /** View used to locate the layout hosting SDL's text input bridge. */
     private var gameTextureView: TextureView? = null
 
+    private var magnifierBitmap: Bitmap? = null
+    private var magnifierFrame by mutableStateOf<ImageBitmap?>(null)
+    private var magnifierFrameVersion by mutableLongStateOf(0L)
+
     private inline fun <T> withHandler(block: AbstractHandler.() -> T): T {
         return vmViewModel.session.handler.block()
     }
 
     private inline fun <T> withLauncher(block: Launcher.() -> T): T {
         return vmViewModel.session.launcher.block()
+    }
+
+    private fun captureMagnifierFrame() {
+        if (!vmViewModel.inputMagnifierState.isVisible) return
+        val textureView = gameTextureView ?: return
+        val width = textureView.width
+        val height = textureView.height
+        if (!textureView.isAvailable || width <= 0 || height <= 0) return
+
+        val bitmap = magnifierBitmap
+            ?.takeIf { it.width == width && it.height == height }
+            ?: createBitmap(width, height).also {
+                magnifierBitmap = it
+                magnifierFrame = it.asImageBitmap()
+            }
+        val captured = runCatching {
+            textureView.getBitmap(bitmap)
+        }.getOrNull() ?: return
+
+        if (magnifierFrame == null) magnifierFrame = captured.asImageBitmap()
+        magnifierFrameVersion++
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -871,6 +923,7 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener {
     }
 
     override fun onSurfaceTextureUpdated(surface: SurfaceTexture) {
+        captureMagnifierFrame()
     }
 
     @Composable
@@ -942,6 +995,102 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener {
             )
 
             content()
+
+            InputMagnifier(
+                inputEnabled = vmViewModel.textInputMode == TextInputMode.ENABLE,
+                state = vmViewModel.inputMagnifierState,
+                frame = { magnifierFrame },
+                frameVersion = { magnifierFrameVersion },
+                floatingContent = {
+                    InputMagnifierContent(
+                        modifier = Modifier
+                            .padding(all = 8.dp)
+                            .align(Alignment.TopEnd),
+                        onClose = { vmViewModel.inputMagnifierState.close() }
+                    )
+                }
+            )
+            LaunchedEffect(vmViewModel.inputMagnifierState.isVisible) {
+                if (vmViewModel.inputMagnifierState.isVisible) captureMagnifierFrame()
+            }
+        }
+    }
+}
+
+@Composable
+private fun InputMagnifierContent(
+    onClose: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    var menuExpanded by remember { mutableStateOf(false) }
+
+    Surface(
+        modifier = modifier,
+        shape = MaterialTheme.shapes.medium,
+        color = Color.Black.copy(alpha = 0.65f),
+        contentColor = Color.White
+    ) {
+        Row {
+            Box {
+                IconButton(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .focusProperties { canFocus = false },
+                    onClick = { menuExpanded = true }
+                ) {
+                    Icon(
+                        modifier = Modifier.size(18.dp),
+                        painter = painterResource(R.drawable.ic_more_vert),
+                        contentDescription = stringResource(R.string.generic_more)
+                    )
+                }
+                DropdownMenu(
+                    expanded = menuExpanded,
+                    onDismissRequest = { menuExpanded = false },
+                    shape = MaterialTheme.shapes.large,
+                    properties = PopupProperties(focusable = false)
+                ) {
+                    DropdownMenuItem(
+                        modifier = Modifier.focusProperties { canFocus = false },
+                        text = {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.game_menu_option_ime_magnifier_auto_show)
+                                )
+                                Checkbox(
+                                    modifier = Modifier.focusProperties { canFocus = false },
+                                    checked = AllSettings.imeMagnifierAutoShow.state,
+                                    onCheckedChange = {
+                                        AllSettings.imeMagnifierAutoShow.save(
+                                            !AllSettings.imeMagnifierAutoShow.state
+                                        )
+                                    }
+                                )
+                            }
+                        },
+                        onClick = {
+                            AllSettings.imeMagnifierAutoShow.save(
+                                !AllSettings.imeMagnifierAutoShow.state
+                            )
+                        }
+                    )
+                }
+            }
+            IconButton(
+                modifier = Modifier
+                    .size(40.dp)
+                    .focusProperties { canFocus = false },
+                onClick = onClose,
+            ) {
+                Icon(
+                    modifier = Modifier.size(18.dp),
+                    painter = painterResource(R.drawable.ic_close),
+                    contentDescription = stringResource(R.string.generic_close)
+                )
+            }
         }
     }
 }

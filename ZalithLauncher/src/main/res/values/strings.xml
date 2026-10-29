@@ -799,6 +799,10 @@
     <string name="game_menu_option_input_method">Switch Input Method</string>
     <!-- Switch in the in-game menu, auto-showing the input method when the game uses SDL -->
     <string name="game_menu_option_auto_show_ime">Auto-show Input Method (SDL)</string>
+    <!-- Switch in the game menu and magnifier menu, showing the magnifier when text input opens -->
+    <string name="game_menu_option_ime_magnifier_auto_show">Show Magnifier by Default While Typing</string>
+    <!-- Accessibility label for the floating button that opens the game magnifier -->
+    <string name="game_magnifier_show">Show Game Magnifier</string>
     <!-- Switch in the in-game menu to show the FPS overlay -->
     <string name="game_menu_option_switch_fps">FPS Display</string>
     <!-- Selector in the in-game menu choosing how the FPS overlay is displayed -->
