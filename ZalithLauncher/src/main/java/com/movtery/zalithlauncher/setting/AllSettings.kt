@@ -272,6 +272,11 @@ object AllSettings : SettingsRegistry() {
     val sdlAutoShowIme = boolSetting("sdlAutoShowIme", true)
 
     /**
+     * 输入时是否默认弹出游戏画面放大镜
+     */
+    val imeMagnifierAutoShow = boolSetting("imeMagnifierAutoShow", true)
+
+    /**
      * 手柄输入模式（映射虚拟按键 / SDL 直通）
      */
     val gamepadInputMode = enumSetting("gamepadInputMode", GamepadInputMode.Mapped)

@@ -539,6 +539,17 @@ private fun ControlOverview(
                 contentColor = contentColor,
             )
         }
+        //输入时默认弹出放大镜
+        item {
+            MenuSwitchButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.game_menu_option_ime_magnifier_auto_show),
+                switch = AllSettings.imeMagnifierAutoShow.state,
+                onSwitch = { AllSettings.imeMagnifierAutoShow.save(it) },
+                color = color,
+                contentColor = contentColor,
+            )
+        }
 
         item {
             Spacer(modifier = Modifier.height(8.dp))

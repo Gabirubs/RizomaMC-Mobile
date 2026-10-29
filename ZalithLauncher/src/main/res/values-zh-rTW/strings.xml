@@ -394,6 +394,8 @@
     <string name="game_menu_option_switch_log">日誌輸出</string>
     <string name="game_menu_option_input_method">切換輸入法</string>
     <string name="game_menu_option_auto_show_ime">自動喚起輸入法（SDL）</string>
+    <string name="game_menu_option_ime_magnifier_auto_show">輸入時預設彈出放大鏡</string>
+    <string name="game_magnifier_show">顯示遊戲放大鏡</string>
     <string name="game_menu_option_switch_fps">幀率顯示</string>
     <string name="game_menu_option_fps_display_mode">幀率顯示模式</string>
     <string name="game_menu_option_fps_display_mode_number">數字</string>
