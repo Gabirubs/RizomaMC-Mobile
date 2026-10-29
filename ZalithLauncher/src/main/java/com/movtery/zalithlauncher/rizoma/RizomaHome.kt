@@ -105,6 +105,7 @@ private fun bc(size: TextUnit, color: Color = Color.White, weight: FontWeight = 
 private const val NOME_VERSAO = "RizomaMC"
 private const val SERVIDOR = "jogar.rizomamc.com.br"
 private const val ZINK = "0fa435e2-46df-45c9-906c-b29606aaef00"
+private const val MOBILEGLUES = "acaf8100-bbaf-4d68-b30d-38bf42fcd640"
 private const val DISCORD = "https://discord.rizomamc.com.br"
 private const val LOJA = "https://rizomamc.com.br"
 
@@ -169,7 +170,7 @@ fun RizomaHome(
                 detalhe = "Preparando a conta"
                 progresso = -1f
                 garantirConta()
-                if (AllSettings.renderer.getValue().isEmpty()) AllSettings.renderer.save(ZINK)
+                escolherRenderizador(context)
 
                 val versao = garantirVersao(context, scope) { texto, p ->
                     fase = Fase.INSTALANDO
@@ -507,4 +508,19 @@ private suspend fun garantirVersao(context: Context, scope: CoroutineScope, onPr
         delay(500)
     }
     throw IllegalStateException("O jogo foi instalado, mas não foi encontrado. Tente de novo.")
+}
+
+/**
+ * Snapdragon (Adreno) roda melhor com Zink; Mali, PowerVR e o resto com MobileGlues.
+ * Só troca enquanto o renderizador for o que o próprio launcher escolheu (respeita a escolha do jogador nas configurações).
+ */
+private fun escolherRenderizador(context: Context) {
+    val prefs = context.getSharedPreferences("rizoma", Context.MODE_PRIVATE)
+    val atual = AllSettings.renderer.getValue()
+    val automatico = prefs.getString("renderer_auto", null)
+    if (atual.isNotEmpty() && atual != automatico && !(automatico == null && atual == ZINK)) return
+    val soc = if (android.os.Build.VERSION.SDK_INT >= 31) android.os.Build.SOC_MANUFACTURER else android.os.Build.HARDWARE
+    val escolhido = if (soc.contains("qualcomm", true) || soc.contains("qcom", true)) ZINK else MOBILEGLUES
+    AllSettings.renderer.save(escolhido)
+    prefs.edit().putString("renderer_auto", escolhido).apply()
 }
