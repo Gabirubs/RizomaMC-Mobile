@@ -22,7 +22,6 @@ import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.rememberInfiniteTransition
@@ -73,63 +72,76 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.movtery.zalithlauncher.BuildKeys
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 import com.movtery.zalithlauncher.ui.components.fadeEdge
+import com.movtery.zalithlauncher.ui.components.swapAnimateAlphaProgressAsState
+import com.movtery.zalithlauncher.ui.components.swapAnimateProgressAsState
 import com.movtery.zalithlauncher.ui.components.verticalScrollWithBar
+import com.movtery.zalithlauncher.utils.animation.SwapTimeline
+import com.movtery.zalithlauncher.viewmodel.SplashBackStackViewModel
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun WelcomeScreen(
     onFinished: () -> Unit,
+    screenViewModel: SplashBackStackViewModel,
     modifier: Modifier = Modifier
 ) {
-    var started by remember { mutableStateOf(false) }
-    val onStart = {
-        started = true
-        onFinished()
-    }
+    BaseScreen(
+        screenKey = SplashOperation.Welcome,
+        currentKey = screenViewModel.splashScreen.currentKey
+    ) { isVisible ->
+        var started by remember { mutableStateOf(false) }
+        val onStart = {
+            started = true
+            onFinished()
+        }
 
-    BoxWithConstraints(
-        modifier = modifier.background(MaterialTheme.colorScheme.background),
-        contentAlignment = Alignment.Center
-    ) {
-        if (maxWidth >= 800.dp && maxHeight >= 500.dp) {
-            // 平板布局
-            TabletWelcomeScreen(
-                started = started,
-                onStart = onStart,
-                modifier = Modifier.fillMaxSize()
-            )
-        } else {
-            // 手机横板布局
-            val availableWidth = minOf(maxWidth, 1280.dp) - 60.dp
-            val terminalWidth = availableWidth * (1.35f / 2.35f) - 20.dp
-
-            Row(
-                modifier = Modifier
-                    .widthIn(max = 1280.dp)
-                    .fillMaxSize()
-                    .padding(all = 20.dp),
-                horizontalArrangement = Arrangement.spacedBy(20.dp)
-            ) {
-                // 终端卡片布局
-                WelcomeTerminal(
-                    modifier = Modifier
-                        .width(terminalWidth)
-                        .fillMaxHeight()
-                        .welcomeEntrance(delayMillis = 0L)
-                )
-
-                WelcomeInformation(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
-                        .welcomeEntrance(delayMillis = 300L)
-                        .padding(vertical = 4.dp),
+        BoxWithConstraints(
+            modifier = modifier.background(MaterialTheme.colorScheme.background),
+            contentAlignment = Alignment.Center
+        ) {
+            if (maxWidth >= 800.dp && maxHeight >= 500.dp) {
+                // 平板布局
+                TabletWelcomeScreen(
+                    isVisible = isVisible,
                     started = started,
                     onStart = onStart,
+                    modifier = Modifier.fillMaxSize()
                 )
+            } else {
+                // 手机横板布局
+                val availableWidth = minOf(maxWidth, 1280.dp) - 60.dp
+                val terminalWidth = availableWidth * (1.35f / 2.35f) - 20.dp
+
+                Row(
+                    modifier = Modifier
+                        .widthIn(max = 1280.dp)
+                        .fillMaxSize()
+                        .padding(all = 20.dp),
+                    horizontalArrangement = Arrangement.spacedBy(20.dp)
+                ) {
+                    // 终端卡片布局
+                    WelcomeTerminal(
+                        isVisible = isVisible,
+                        modifier = Modifier
+                            .width(terminalWidth)
+                            .fillMaxHeight()
+                            .welcomeEntrance(isVisible = isVisible)
+                    )
+
+                    WelcomeInformation(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .welcomeEntrance(isVisible = isVisible, delayMillis = 300)
+                            .padding(vertical = 4.dp),
+                        started = started,
+                        onStart = onStart,
+                    )
+                }
             }
         }
     }
@@ -137,43 +149,54 @@ fun WelcomeScreen(
 
 @Composable
 private fun Modifier.welcomeEntrance(
-    delayMillis: Long = 0,
+    isVisible: Boolean,
+    delayMillis: Int = 0,
     durationMillis: Int = 3000,
     enter: Boolean = true,
     offsetX: Dp = 180.dp,
     offsetY: Dp = 0.dp
 ): Modifier {
-    var entered by remember { mutableStateOf(false) }
-    val slideProgress by animateFloatAsState(
-        targetValue = if (entered) 1f else 0f,
-        animationSpec = tween(
-            durationMillis = durationMillis,
-            easing = CubicBezierEasing(0.05f, 0.7f, 0.1f, 1f)
-        ),
-        label = "WelcomeEntranceSlide"
-    )
-    val opacity by animateFloatAsState(
-        targetValue = if (entered) 1f else 0f,
-        animationSpec = tween(durationMillis = 800, easing = LinearEasing),
-        label = "WelcomeEntranceFade"
-    )
-
-    LaunchedEffect(enter) {
-        if (enter) {
-            delay(delayMillis.milliseconds)
-            entered = true
+    val slideProgress = swapAnimateProgressAsState(
+        isVisible = isVisible && enter,
+        animationSpec = if (isVisible) {
+            tween(
+                durationMillis = durationMillis,
+                delayMillis = delayMillis,
+                easing = CubicBezierEasing(0.05f, 0.7f, 0.1f, 1f)
+            )
+        } else {
+            tween(
+                durationMillis = SwapTimeline.swapTime(SwapTimeline.EXIT_ITEM),
+                easing = LinearEasing
+            )
         }
-    }
+    )
+    val opacity = swapAnimateAlphaProgressAsState(
+        isVisible = isVisible && enter,
+        animationSpec = if (isVisible) {
+            tween(
+                durationMillis = 800,
+                delayMillis = delayMillis,
+                easing = LinearEasing
+            )
+        } else {
+            tween(
+                durationMillis = SwapTimeline.swapTime(SwapTimeline.EXIT_ALPHA),
+                easing = LinearEasing
+            )
+        }
+    )
 
     return this.graphicsLayer {
-        translationX = offsetX.toPx() * (1f - slideProgress)
-        translationY = offsetY.toPx() * (1f - slideProgress)
-        alpha = opacity
+        translationX = offsetX.toPx() * (1f - slideProgress.value)
+        translationY = offsetY.toPx() * (1f - slideProgress.value)
+        alpha = opacity.value
     }
 }
 
 @Composable
 private fun WelcomeTerminal(
+    isVisible: Boolean,
     modifier: Modifier = Modifier
 ) {
     var welcomeText by remember { mutableStateOf("") }
@@ -295,6 +318,7 @@ private fun WelcomeTerminal(
 
                 Text(
                     modifier = Modifier.welcomeEntrance(
+                        isVisible = isVisible,
                         durationMillis = 2000,
                         enter = welcomeFinished,
                         offsetX = 0.dp,
@@ -314,6 +338,7 @@ private fun WelcomeTerminal(
 
 @Composable
 private fun TabletWelcomeScreen(
+    isVisible: Boolean,
     started: Boolean,
     onStart: () -> Unit,
     modifier: Modifier = Modifier
@@ -339,22 +364,23 @@ private fun TabletWelcomeScreen(
                 verticalArrangement = Arrangement.spacedBy(24.dp, Alignment.CenterVertically),
             ) {
                 ProductBanner(
-                    modifier = Modifier.welcomeEntrance(delayMillis = 300)
+                    modifier = Modifier.welcomeEntrance(isVisible = isVisible, delayMillis = 300)
                 )
 
                 // 终端卡片布局
                 WelcomeTerminal(
+                    isVisible = isVisible,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(terminalHeight)
-                        .welcomeEntrance(delayMillis = 0)
+                        .welcomeEntrance(isVisible = isVisible)
                 )
 
                 WelcomeIntroduction(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 8.dp)
-                        .welcomeEntrance(delayMillis = 300)
+                        .welcomeEntrance(isVisible = isVisible, delayMillis = 300)
                 )
             }
 
@@ -364,7 +390,7 @@ private fun TabletWelcomeScreen(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(28.dp)
-                    .welcomeEntrance(delayMillis = 300)
+                    .welcomeEntrance(isVisible = isVisible, delayMillis = 300)
             )
         }
     }
@@ -469,6 +495,14 @@ private fun WelcomeIntroduction(
                     )
                     Text(
                         text = stringResource(R.string.welcome_screen_notice_license, BuildKeys.LAUNCHER_NAME),
+                        lineHeight = 26.sp
+                    )
+                    Text(
+                        text = stringResource(R.string.welcome_screen_notice_local_data, BuildKeys.LAUNCHER_NAME),
+                        lineHeight = 26.sp
+                    )
+                    Text(
+                        text = stringResource(R.string.welcome_screen_notice_third_party_data, BuildKeys.LAUNCHER_NAME),
                         lineHeight = 26.sp
                     )
                 }

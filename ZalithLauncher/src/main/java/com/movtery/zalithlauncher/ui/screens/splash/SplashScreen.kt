@@ -36,6 +36,10 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.entryProvider
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.components.InstallableItem
+import com.movtery.zalithlauncher.ui.base.BaseScreen
+import com.movtery.zalithlauncher.ui.components.AnimatedDirection
+import com.movtery.zalithlauncher.ui.components.animated
+import com.movtery.zalithlauncher.ui.components.rememberAnimatedContext
 import com.movtery.zalithlauncher.ui.screens.NavStateHost
 import com.movtery.zalithlauncher.ui.screens.NestedNavDisplay
 import com.movtery.zalithlauncher.ui.screens.rememberTransitionSpec
@@ -89,12 +93,13 @@ private fun NavigationUI(
             popTransitionSpec = rememberTransitionSpec(),
             entryProvider = entryProvider {
                 entry<SplashOperation.Loading> {
-                    LoadingScreen()
+                    LoadingScreen(screenViewModel = screenViewModel)
                 }
                 entry<SplashOperation.Welcome> {
                     WelcomeScreen(
                         modifier = Modifier.fillMaxSize(),
-                        onFinished = onWelcomeFinished
+                        onFinished = onWelcomeFinished,
+                        screenViewModel = screenViewModel
                     )
                 }
                 entry<SplashOperation.Unpacking> {
@@ -112,24 +117,35 @@ private fun NavigationUI(
 }
 
 @Composable
-private fun LoadingScreen() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+private fun LoadingScreen(
+    screenViewModel: SplashBackStackViewModel
+) {
+    BaseScreen(
+        screenKey = SplashOperation.Loading,
+        currentKey = screenViewModel.splashScreen.currentKey
+    ) { isVisible ->
+        val ctx = rememberAnimatedContext(isVisible = isVisible)
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .animated(ctx, from = AnimatedDirection.Bottom),
+            contentAlignment = Alignment.Center
         ) {
-            Image(
-                modifier = Modifier.size(58.dp),
-                painter = painterResource(R.drawable.img_launcher),
-                contentDescription = stringResource(R.string.generic_loading)
-            )
-            LinearWavyProgressIndicator(
-                modifier = Modifier.width(128.dp),
-                wavelength = 32.dp
-            )
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Image(
+                    modifier = Modifier.size(58.dp),
+                    painter = painterResource(R.drawable.img_launcher),
+                    contentDescription = stringResource(R.string.generic_loading)
+                )
+                LinearWavyProgressIndicator(
+                    modifier = Modifier.width(128.dp),
+                    wavelength = 32.dp
+                )
+            }
         }
     }
 }

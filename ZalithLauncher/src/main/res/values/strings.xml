@@ -233,6 +233,10 @@
     <string name="welcome_screen_notice_free">%1$s is free and open-source software. It has no paid feature unlocks or paid gameplay enhancements; only donation channels and a sponsor acknowledgements list are provided.</string>
     <!-- Notice describing the launcher and third-party licenses; %1$s is the launcher name -->
     <string name="welcome_screen_notice_license">%1$s is free software released under the GNU General Public License version 3 (GPL-3.0). Third-party components used by the software are governed by their respective licenses.</string>
+    <!-- Local data and authorized log upload notice; %1$s is the launcher name -->
+    <string name="welcome_screen_notice_local_data">Your data is stored only locally. %1$s itself does not collect any of your data or upload it to the cloud without your knowledge. The log upload feature uploads game logs to LogShare or MCLogs only with your knowledge and authorization.</string>
+    <!-- Third-party game and mod data upload notice; %1$s is the launcher name -->
+    <string name="welcome_screen_notice_third_party_data">Games or mods you run through %1$s may upload your data to third-party servers. The launcher is not responsible for this behavior; please review the behavior of the games or mods yourself and remove them if necessary.</string>
     <!-- Introduction to the permissions listed on the welcome screen -->
     <string name="welcome_screen_permissions_intro">The launcher uses the following permissions and features. Please read them carefully.</string>
     <!-- Network and account permission description in the welcome user notice -->

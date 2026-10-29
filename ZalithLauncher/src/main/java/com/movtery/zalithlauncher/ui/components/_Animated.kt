@@ -18,6 +18,7 @@
 
 package com.movtery.zalithlauncher.ui.components
 
+import androidx.compose.animation.core.DurationBasedAnimationSpec
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.animateFloatAsState
@@ -172,9 +173,18 @@ private fun swapAnimateProgressAsState(
             easing = LinearEasing
         )
     }
+    return swapAnimateProgressAsState(isVisible = isVisible, animationSpec = spec)
+}
+
+@Composable
+fun swapAnimateProgressAsState(
+    isVisible: Boolean,
+    animationSpec: DurationBasedAnimationSpec<Float>
+): State<Float> {
+    if (SwapTimeline.isSwapClosed()) return rememberUpdatedState(newValue = 1f)
     return animateFloatAsState(
         targetValue = if (isVisible) 1f else 0f,
-        animationSpec = spec
+        animationSpec = animationSpec
     )
 }
 
@@ -198,9 +208,18 @@ private fun swapAnimateAlphaProgressAsState(
             easing = LinearEasing
         )
     }
+    return swapAnimateAlphaProgressAsState(isVisible = isVisible, animationSpec = spec)
+}
+
+@Composable
+fun swapAnimateAlphaProgressAsState(
+    isVisible: Boolean,
+    animationSpec: DurationBasedAnimationSpec<Float>
+): State<Float> {
+    if (SwapTimeline.isSwapClosed()) return rememberUpdatedState(newValue = 1f)
     return animateFloatAsState(
         targetValue = if (isVisible) 1f else 0f,
-        animationSpec = spec
+        animationSpec = animationSpec
     )
 }
 
