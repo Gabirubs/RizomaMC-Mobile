@@ -500,23 +500,7 @@ class MainActivity : BaseAppCompatActivity() {
                     }
                 )
 
-                //检查更新操作流程
-                LauncherUpgradeOperation(
-                    operation = launcherUpgradeViewModel.operation,
-                    onChanged = { launcherUpgradeViewModel.operation = it },
-                    onIgnoredClick = { ver ->
-                        AllSettings.lastIgnoredVersion.save(ver)
-                    },
-                    onLinkClick = { eventViewModel.sendEvent(EventViewModel.Event.OpenLink(it)) }
-                )
-
-                //当月赞助者对话框 / 上月赞助者结算报告
-                SponsorsDialog(
-                    viewModel = sponsorsViewModel,
-                    onSupportClick = {
-                        eventViewModel.sendEvent(EventViewModel.Event.OpenLink(URL_SUPPORT))
-                    }
-                )
+                // RizomaMC: sem aviso de atualização do Zalith nem popup de patrocinadores
 
                 //版本修改操作流程
                 ModifyVersionOperation(
